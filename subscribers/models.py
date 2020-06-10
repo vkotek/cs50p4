@@ -7,5 +7,9 @@ class Subscriber(models.Model):
 
     email = models.EmailField()
     preferences = models.ManyToManyField(Restaurant)
-    subscribed = models.DateTimeField()
-    token = models.CharField(max_length=24)
+    created = models.DateTimeField(auto_now_add=True, blank=True)
+    modified = models.DateTimeField(auto_now=True, blank=True)
+    token = models.CharField(max_length=24, blank=True)
+
+    def __str__(self):
+        return f'{self.email}'
