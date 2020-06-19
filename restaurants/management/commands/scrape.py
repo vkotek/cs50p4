@@ -2,6 +2,8 @@ from django.core.management.base import BaseCommand, CommandError
 
 from restaurants.models import Restaurant, Menu
 
+from _private import *
+
 class Command(BaseCommand):
     help = 'Scrapes daily menu from restaurants'
 
@@ -9,5 +11,7 @@ class Command(BaseCommand):
         parser.add_argument('--restaurant_ids', type=int)
 
     def handle(self, *args, **options):
+
         for restaurant in Restaurant.objects.all():
-            self.stdout.write(f"Scraping {restaurant.name}")
+
+            self.stdout.write(f"Scraping {restaurant.name} at {restaurant.url}")
