@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from restaurants.models import Restaurant, Menu
 
-from _private import *
+from restaurants.management.commands._private import * 
 
 class Command(BaseCommand):
     help = 'Scrapes daily menu from restaurants'

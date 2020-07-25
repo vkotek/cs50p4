@@ -14,6 +14,9 @@ STEP 3:
 
 STEP 4:
     Save to database
+
+
+TODO: NLP/ML confidence rating of text being daily menu
 """
 
 from selenium.webdriver import Chrome
@@ -34,35 +37,75 @@ import os, sys, traceback
 from unidecode import unidecode
 from time import sleep
 
+# from restaurants.models import Restaurant
 
 from facebook_scraper import get_posts
 
-chromedriver_path = r'C:\Users\kotek\Documents\KOTEK.CO\youtube_subscriber\\chromedriver'
+chromedriver_path = r'C:\Users\kotek\Documents\KOTEK.CO\youtube_subscriber\chromedriver'
 
-def scraper(url):
+Scraper().get(url="https://www.facebook.com/Pastva%20/")
 
+s = Scraper()           
+x = s.get(url="http://www.prostor.je", selector="#daily-menu ul")
+
+url = "http://www.prostor.je"
+selector = "#daily-menu ul li"
+
+# TEST
+def test():
     options = Options()
-    options.headless = True
     browser = Chrome(options=options, executable_path=chromedriver_path)
+    browser.get(url)
+    elems = browser.find_elements_by_css_selector(selector)
+    elems
+    
 
-    def facebook(url):
+class Scraper(object):
 
+    def __init__(self):
+        """Restaurant as DB object?"""
+
+        self.options = Options()
+        # self.options.headless = True
+        self.browser = Chrome(options=self.options, executable_path=chromedriver_path)
+
+    def get(self, restaurant=None, url=None, selector=None):
+
+        if 'facebook' in url:
+            print("Facebook detected.")
+            response = self.facebook(url)
+        else:
+            print("Facebook not detected.")
+            response = self.default(url, selector)
+        
+        return response
+
+    def facebook(self, url):
         fb_slug = url.lower().rstrip('/').rsplit('/', maxsplit=1)[-1]
         posts = get_posts(fb_slug, pages=3)
-        for post in posts:
+        for post in posts: #TODO: Fix so that it ignores pinned posts? Or looks for today's date/day name first?
             if 'menu' in post['text'].lower():
                 return post['text']
 
-    def html(url):
+    def default(self, url, selector):
 
-        driver.get(url)
+        print(url, selector)
+
+        self.browser.get(url)
         sleep(1)
-        html = driver.page_source
-        soup = bs(html, 'html.parser')
-        return soup
-        
+        elems = self.browser.find_elements_by_css_selector(selector)
+        sleep(1)
+        print(elems)
+        for elem in elems:
+            print(elem.text)
 
-x = scraper("https://www.facebook.com/Pastva%20/")
+        text_list = [elem.text for elem in elems]
+
+        print(text_list)
+        text = text_list
+
+
+        return text
 
 
     def add_menu(self, id, language, name, url, selector, n=0, javascript=False, facebook=False, location=None):
@@ -83,14 +126,14 @@ x = scraper("https://www.facebook.com/Pastva%20/")
         print("[{}] Fetching menu for {}".format(id, name.ljust(30)), end="")
         try:
 
-            if facebook == True:
-                soup = scraper.get_html_javascript(url)
-                posts = scraper.get_facebook_posts(soup)
-                post = scraper.find_menu_post(posts)
-                text_list = post
+            if 'facebook' in url:
+                print("Is facebook..")
+                self.text = self.facebook(url)
+                print(self.text)
             else:
+                raw_html = self.html(url)
                 # Get the raw menu from URL
-                text_raw = self.scrape_menu( url, selector, javascript=javascript)
+                text_raw = self.scrape_menu( url, selector)
 
                 # Convert raw text to a list
                 text_list = self.convert_to_list( text_raw, n)
